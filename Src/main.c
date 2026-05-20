@@ -1,5 +1,6 @@
 #include "main.h"
 #include "MFRC522.h"
+#include "I2C_LCD.h"
 #include <stdio.h>
 
 #define SYSTEM_CORE_CLOCK 36000000UL // chon clock 36MHz
