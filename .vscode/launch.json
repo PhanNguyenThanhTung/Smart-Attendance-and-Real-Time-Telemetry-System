@@ -1,24 +1,26 @@
 {
   "version": "0.2.0",
   "configurations": [
-    {
-      "name": "C/C++ Runner: Debug Session",
-      "type": "cppdbg",
+      {
+      "name": "Debug STM32 OpenOCD",
+      "type": "cortex-debug",
       "request": "launch",
-      "args": [],
-      "stopAtEntry": false,
-      "externalConsole": false,
-      "cwd": "/home/artorius/Documents/GitHub/Smart-Attendance-and-Real-Time-Telemetry-System",
-      "program": "/home/artorius/Documents/GitHub/Smart-Attendance-and-Real-Time-Telemetry-System/build/Debug/outDebug",
-      "MIMode": "gdb",
-      "miDebuggerPath": "gdb",
-      "setupCommands": [
-        {
-          "description": "Enable pretty-printing for gdb",
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        }
-      ]
+      "servertype": "openocd",
+      "cwd": "${workspaceFolder}",
+      "executable": "${workspaceFolder}/main.elf",
+      "device": "STM32F103C8",
+      "svdFile": "D:/Hoc_Tap/Kien_thuc_chuan_bi/Bare_Metal/STM32F103.svd",
+      "configFiles": [
+        "interface/stlink.cfg",
+        "target/stm32f1x.cfg"
+      ],
+      "searchDir": [
+        "C:/msys64/mingw64/share/openocd/scripts"
+      ],
+      "gdbPath": "C:/Program Files (x86)/Arm/GNU Toolchain mingw-w64-i686-arm-none-eabi/bin/arm-none-eabi-gdb.exe",
+      "serverpath": "C:/msys64/mingw64/bin/openocd.exe",
+      "runToEntryPoint": "main",
+      "showDevDebugOutput": "raw"
     }
   ]
 }
