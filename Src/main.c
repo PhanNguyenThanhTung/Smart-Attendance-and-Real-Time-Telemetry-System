@@ -1,5 +1,6 @@
 #include "main.h"
 #include "MFRC522.h"
+#include "I2C_LCD.h"
 #include <stdio.h>
 
 #define SYSTEM_CORE_CLOCK 36000000UL // chon clock 36MHz
@@ -24,48 +25,55 @@ volatile uint8_t g_last_request_status = 0;
 volatile uint8_t g_last_anticoll_status = 0;
 
 int main(void) {
-    uint8_t tagType[2];
-    uint8_t uid[5];
+    // uint8_t tagType[2];
+    // uint8_t uid[5];
 
-    SystemClock_Config_36MHz();
-    SPI1_Init();
-    delay_ms(50);
-    MFRC522_Init();
-    delay_ms(50);
-    // 0x37 = VersionReg
-    // Neu SPI va RC522 hoat dong dung, gia tri thuong la 0x91 hoac 0x92
-    g_version = MFRC522_Read(0x37);
-    g_tx_control = MFRC522_Read(0x14);
+    // SystemClock_Config_36MHz();
+    // SPI1_Init();
+    I2C1_Init();
+    // delay_ms(50);
+    // MFRC522_Init();
+    // delay_ms(50);
+    // // 0x37 = VersionReg
+    // // Neu SPI va RC522 hoat dong dung, gia tri thuong la 0x91 hoac 0x92
+    // g_version = MFRC522_Read(0x37);
+    // g_tx_control = MFRC522_Read(0x14);
 
     while (1) {
-        g_loop_count++;
-        g_tx_control = MFRC522_Read(0x14); // TxControlReg
-        g_error_reg  = MFRC522_Read(0x06); // ErrorReg
-        g_irq_reg    = MFRC522_Read(0x04); // CommIrqReg
-        g_fifo_level = MFRC522_Read(0x0A); // FIFOLevelReg
+        // g_loop_count++;
+        // g_tx_control = MFRC522_Read(0x14); // TxControlReg
+        // g_error_reg  = MFRC522_Read(0x06); // ErrorReg
+        // g_irq_reg    = MFRC522_Read(0x04); // CommIrqReg
+        // g_fifo_level = MFRC522_Read(0x0A); // FIFOLevelReg
 
-        g_last_request_status = MFRC522_Request(0x26, tagType);
+        // g_last_request_status = MFRC522_Request(0x26, tagType);
 
-        if (g_last_request_status == 1) {
-            g_card_found = 1;
-            g_ever_card_found = 1;
-            g_tagType[0] = tagType[0];
-            g_tagType[1] = tagType[1];
+        // if (g_last_request_status == 1) {
+        //     g_card_found = 1;
+        //     g_ever_card_found = 1;
+        //     g_tagType[0] = tagType[0];
+        //     g_tagType[1] = tagType[1];
 
-            g_last_anticoll_status = MFRC522_Anticoll(uid);
+        //     g_last_anticoll_status = MFRC522_Anticoll(uid);
 
-            if (g_last_anticoll_status == 1) {
-                g_uid_ok = 1;
-                g_ever_uid_ok = 1;
-                g_uid[0] = uid[0];
-                g_uid[1] = uid[1];
-                g_uid[2] = uid[2];
-                g_uid[3] = uid[3];
-                g_uid[4] = uid[4];
-            }
-            delay_ms(500);
-        }
-        delay_ms(100);
+        //     if (g_last_anticoll_status == 1) {
+        //         g_uid_ok = 1;
+        //         g_ever_uid_ok = 1;
+        //         g_uid[0] = uid[0];
+        //         g_uid[1] = uid[1];
+        //         g_uid[2] = uid[2];
+        //         g_uid[3] = uid[3];
+        //         g_uid[4] = uid[4];
+        //     }
+        //     delay_ms(500);
+        // }
+        // delay_ms(100);
+        I2C1_WriteByte(0x27, 0x08);
+        delay_ms(1000);
+
+        I2C1_WriteByte(0x27, 0x00);
+        delay_ms(1000);
+
     }
     return 0;
 }
