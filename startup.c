@@ -155,7 +155,7 @@ void Reset_Handler(void) {
         *pBss++ = 0;
     }
 
-    main();
+    
     
     while(1);
 }
