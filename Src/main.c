@@ -8,73 +8,62 @@
 void SystemClock_Config_36MHz(void);
 void delay_ms(uint32_t ms);
 
-volatile uint8_t g_version = 0;
-volatile uint8_t g_tx_control = 0;
-volatile uint8_t g_error_reg = 0;
-volatile uint8_t g_irq_reg = 0;
-volatile uint8_t g_fifo_level = 0;
-volatile uint8_t g_card_found = 0;
-volatile uint8_t g_uid_ok = 0;
-volatile uint8_t g_tagType[2] = {0};
-volatile uint8_t g_uid[5] = {0};
-volatile uint32_t g_loop_count = 0;
-
-volatile uint8_t g_ever_card_found = 0;
-volatile uint8_t g_ever_uid_ok = 0;
-volatile uint8_t g_last_request_status = 0;
-volatile uint8_t g_last_anticoll_status = 0;
-
 int main(void) {
-    // uint8_t tagType[2];
-    // uint8_t uid[5];
+    uint8_t tagType[2];
+    uint8_t uid[5];
 
-    // SystemClock_Config_36MHz();
-    // SPI1_Init();
+    SystemClock_Config_36MHz();
+
+    SPI1_Init();
     I2C1_Init();
-    // delay_ms(50);
-    // MFRC522_Init();
-    // delay_ms(50);
-    // // 0x37 = VersionReg
-    // // Neu SPI va RC522 hoat dong dung, gia tri thuong la 0x91 hoac 0x92
-    // g_version = MFRC522_Read(0x37);
-    // g_tx_control = MFRC522_Read(0x14);
+
+    delay_ms(50);
+
+    MFRC522_Init();
+    delay_ms(50);
+
+    LCD_Init();
+
+    LCD_Clear();
+    LCD_SetCursor(0, 0);
+    LCD_Print("Smart Attendance");
+
+    LCD_SetCursor(1, 0);
+    LCD_Print("Waiting card...");
 
     while (1) {
-        // g_loop_count++;
-        // g_tx_control = MFRC522_Read(0x14); // TxControlReg
-        // g_error_reg  = MFRC522_Read(0x06); // ErrorReg
-        // g_irq_reg    = MFRC522_Read(0x04); // CommIrqReg
-        // g_fifo_level = MFRC522_Read(0x0A); // FIFOLevelReg
+        if(MFRC522_Request(0x26, tagType) == 1)
+        {
+            if(MFRC522_Anticoll(uid) == 1)
+            {
+                LCD_Clear();
 
-        // g_last_request_status = MFRC522_Request(0x26, tagType);
+                LCD_SetCursor(0, 0);
+                LCD_Print("Card detected");
 
-        // if (g_last_request_status == 1) {
-        //     g_card_found = 1;
-        //     g_ever_card_found = 1;
-        //     g_tagType[0] = tagType[0];
-        //     g_tagType[1] = tagType[1];
+                LCD_SetCursor(1, 0);
+                LCD_Print("UID:");
 
-        //     g_last_anticoll_status = MFRC522_Anticoll(uid);
+                LCD_SetCursor(2, 0);
+                LCD_PrintUID(uid);
 
-        //     if (g_last_anticoll_status == 1) {
-        //         g_uid_ok = 1;
-        //         g_ever_uid_ok = 1;
-        //         g_uid[0] = uid[0];
-        //         g_uid[1] = uid[1];
-        //         g_uid[2] = uid[2];
-        //         g_uid[3] = uid[3];
-        //         g_uid[4] = uid[4];
-        //     }
-        //     delay_ms(500);
-        // }
-        // delay_ms(100);
-        I2C1_WriteByte(0x27, 0x08);
-        delay_ms(1000);
+                LCD_SetCursor(3, 0);
+                LCD_Print("RFID OK");
 
-        I2C1_WriteByte(0x27, 0x00);
-        delay_ms(1000);
+                delay_ms(1500);
 
+                LCD_Clear();
+                LCD_SetCursor(0, 0);
+                LCD_Print("Smart Attendance");
+
+                LCD_SetCursor(1, 0);
+                LCD_Print("Waiting card...");
+            }
+        }
+
+        delay_ms(100);
     }
+
     return 0;
 }
 
@@ -84,7 +73,7 @@ void SystemClock_Config_36MHz(void) {
     RCC_CR |= (1 << 16);
     //Doi HSE san sang
     // RCC_CR bit 17 = HSERDY
-    while (!(RCC_CR & (1 << 17)));
+    while(!(RCC_CR & (1 << 17)));
     // Cau hinh Flash latency
     // 36MHz can 1 wait state
     // FLASH_ACR bit 0-2 = LATENCY
@@ -126,8 +115,7 @@ void SystemClock_Config_36MHz(void) {
     while (((RCC_CFGR >> 2) & 0x3) != 0x2);
 }
 
-void delay_ms(uint32_t ms)
-{
+void delay_ms(uint32_t ms) {
     SYSTICK_LOAD = (SYSTEM_CORE_CLOCK / 1000) - 1;
     // Xoa gia tri hien tai
     SYSTICK_VAL = 0;
@@ -137,11 +125,10 @@ void delay_ms(uint32_t ms)
     // Bit 2 = CLKSOURCE, 1 = dung clock CPU
     SYSTICK_CTRL = (1 << 0) | (1 << 2);
 
-    for (uint32_t i = 0; i < ms; i++)
-    {
+    for(uint32_t i = 0; i < ms; i++) {
         // Cho COUNTFLAG = 1
         // COUNTFLAG nam o bit 16
-        while (!(SYSTICK_CTRL & (1 << 16)));
+        while(!(SYSTICK_CTRL & (1 << 16)));
     }
 
     // Tat SysTick sau khi delay xong
