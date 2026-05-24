@@ -113,9 +113,10 @@ void LCD_Init(void) {
     LCD_Write4Bits(0x30);
     delay_ms(10);
 
-    //gui lenh yeu cau chuyen sang mode 4-bit (0x20): 
-        //gui 2 lan voi moi lan 4-bit
-        //4 bit HighNibble va 4 bit LowNibble
+    /*gui lenh yeu cau chuyen sang mode 4-bit (0x20): 
+        - gui 2 lan voi moi lan 4-bit
+        - 4 bit HighNibble va 4 bit LowNibble
+    */
     LCD_Write4Bits(0x20);
     delay_ms(10);
 
@@ -169,10 +170,11 @@ static char HextoChar(uint8_t value) { //Ham nay se bien doi gia tri Hexa sang C
 
 void LCD_PrintUID(uint8_t *uid) {
     char uidStr[12]; //Gom 8 ky tu UID, 3 ky tu ' ', 1 ky tu '\0'
-    //Giai thich vi sao phai dich phai 4 bit:
-        //- Vi ham HextoChar se chuyen tung gia tri nhung UID RFID theo cap (8 bit cho 2 ky tu)
-        //- Vi du: neu giu nguyen cap 5A = 0101 1010 khi vao dong (value &= 0x0F) thi se mat luon so 5 = 0000 1010
-        //- Nen phai tach no ra tung ky tu rieng le bang cach dich phai 4 bit de chuyen doi
+    /*Giai thich vi sao phai dich phai 4 bit:
+        - Vi ham HextoChar se chuyen tung gia tri nhung UID RFID theo cap (8 bit cho 2 ky tu)
+        - Vi du: neu giu nguyen cap 5A = 0101 1010 khi vao dong (value &= 0x0F) thi se mat luon so 5 = 0000 1010
+        - Nen phai tach no ra tung ky tu rieng le bang cach dich phai 4 bit de chuyen doi 
+    */
     
     //UID[0]
     uidStr[0] = HextoChar(uid[0] >> 4); //Dich 4 bit cao ve 4 bit thap de chuyen doi
