@@ -1,6 +1,7 @@
 #include "main.h"
 #include "MFRC522.h"
 #include "I2C_LCD.h"
+#include "UART.h"
 #include <stdio.h>
 
 #define SYSTEM_CORE_CLOCK 36000000UL // chon clock 36MHz
@@ -13,15 +14,14 @@ int main(void) {
     uint8_t uid[5];
 
     SystemClock_Config_36MHz();
-
+    //Khoir tao cac giao thuc
     SPI1_Init();
     I2C1_Init();
-
+    UART1_Init();
     delay_ms(50);
-
+    //Khoi tao cac linh kien
     MFRC522_Init();
     delay_ms(50);
-
     LCD_Init();
 
     LCD_Clear();
@@ -36,6 +36,8 @@ int main(void) {
         {
             if(MFRC522_Anticoll(uid) == 1)
             {
+                UART1_SendUID(uid);
+
                 LCD_Clear();
 
                 LCD_SetCursor(0, 0);
@@ -48,7 +50,7 @@ int main(void) {
                 LCD_PrintUID(uid);
 
                 LCD_SetCursor(3, 0);
-                LCD_Print("RFID OK");
+                LCD_Print("Sent to PC");
 
                 delay_ms(1500);
 

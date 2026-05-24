@@ -52,6 +52,13 @@
 #define SPI_CR1_SSM     (1 << 9)
 #define SPI_CR1_SSI     (1 << 8)
 
+//USART1
+#define USART1_BASE     0x40013800
+#define USART1_SR       (*(volatile uint32_t*) (USART1_BASE + 0x00))
+#define USART1_DR       (*(volatile uint32_t*) (USART1_BASE + 0x04))
+#define USART1_BRR      (*(volatile uint32_t*) (USART1_BASE + 0x08))
+#define USART1_CR1      (*(volatile uint32_t*) (USART1_BASE + 0x0C))
+
 //Systick
 #define SYSTICK_BASE    0xE000E010 //Table 33/Muc 4.1 About the STM32 core peripherals/Tai lieu PM0056 Programming manual
 #define SYSTICK_CTRL    (*(volatile uint32_t*)(SYSTICK_BASE + 0x00))
@@ -60,3 +67,4 @@
 #define SYSTICK_CALIB   (*(volatile uint32_t*)(SYSTICK_BASE + 0x0C))
 
 #endif
+   
