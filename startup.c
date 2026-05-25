@@ -6,12 +6,12 @@
 #define SRAM_END ((SRAM_START) + (SRAM_SIZE))
 #define STACK_START ((uint32_t *)SRAM_END)
 
-extern uint32_t _estack;   // Đỉnh Stack
-extern uint32_t _sidata;   // Đầu vùng data gốc trên Flash
-extern uint32_t _sdata;    // Đầu vùng data trên RAM
-extern uint32_t _edata;    // Cuối vùng data trên RAM
-extern uint32_t _sbss;     // Đầu vùng bss trên RAM
-extern uint32_t _ebss;     // Cuối vùng bss trên RAM
+extern uint32_t _estack;   /* Đỉnh Stack */ 
+extern uint32_t _sidata;   /* Đầu vùng data gốc trên Flash */ 
+extern uint32_t _sdata;    /* Đầu vùng data trên RAM */
+extern uint32_t _edata;    /* Cuối vùng data trên RAM */
+extern uint32_t _sbss;     /* Đầu vùng bss trên RAM */
+extern uint32_t _ebss;     /* Cuối vùng bss trên RAM */
 
 extern int main(void);
 void Default_Handler(void);

@@ -3,7 +3,7 @@
 
 #include "main.h"
 #include <stdint.h>
-#define LCD_I2C_ADDR 0x27 //co the la 0x3F neu la phien ban moi
+#define LCD_I2C_ADDR 0x27 /* co the la 0x3F neu la phien ban moi */
 
 void I2C1_Init(void);
 uint8_t I2C1_WriteByte(uint8_t addr, uint8_t data);
