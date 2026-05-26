@@ -61,3 +61,44 @@ void UART1_SendUID(uint8_t *uid) {
     /* Dua con tro ve dau dong \r va  xuong dong \n */
     UART1_SendString("\r\n");
 }
+
+uint8_t UART1_Available(void) {
+    /* Kiemr tra bit RXNE tren thanh ghi status xem co nhan duoc data hay chua */
+    if(USART1_SR & (1 << 5)) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+char UART1_ReceiveChar(void) {
+    /* Doi cho den khi RXNE = 1 */
+    while(!(USART1_SR & (1 << 5)));
+
+    return (char)(USART1_DR & 0xFF);
+}
+
+void UART1_ReadLine(char *buffer, uint16_t maxLen) {
+    uint16_t i = 0;
+    char c;
+
+    if(maxLen == 0) {
+        return;
+    }
+    while(i < (maxLen - 1)) {
+        c = UART1_ReceiveChar();
+        /* Neu la con tro dau dong '\r' thi tiep tuc */
+        if(c == '\r') {
+            continue;
+        }
+        /* Neu la ky hieu xuong dong '\n' thi dung lai */
+        if(c == '\n') {
+            break;
+        }
+        /* Dua du lieu nhan duoc vao bo dem */
+        buffer[i] = c;
+
+        i++;
+    }
+    buffer[i] = '\0';
+}

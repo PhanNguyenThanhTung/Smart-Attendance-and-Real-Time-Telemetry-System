@@ -8,14 +8,16 @@
 
 void SystemClock_Config_36MHz(void);
 void delay_ms(uint32_t ms);
+uint8_t StringCompare(char *str, char *prefix);
 
 int main(void) {
     uint8_t tagType[2];
-    uint8_t uid[5];
-
+    uint8_t uid[5]; /* Mang chua UID */
+    char pcResponse[64]; /* Mang chua phan hoi tu PC */
+    /* Khoi tao Clock cho he thong */
     SystemClock_Config_36MHz();
 
-    /* Khoir tao cac giao thuc */
+    /* Khoi tao cac giao thuc */
     SPI1_Init();
     I2C1_Init();
     UART1_Init();
@@ -26,6 +28,7 @@ int main(void) {
     delay_ms(50);
     LCD_Init();
 
+    /* Bat dau set up voi LCD */
     LCD_Clear();
     LCD_SetCursor(0, 0);
     LCD_Print("Smart Attendance");
@@ -38,21 +41,41 @@ int main(void) {
         {
             if(MFRC522_Anticoll(uid) == 1)
             {
-                UART1_SendUID(uid);
-
                 LCD_Clear();
-
                 LCD_SetCursor(0, 0);
                 LCD_Print("Card detected");
 
                 LCD_SetCursor(1, 0);
                 LCD_Print("UID:");
-
                 LCD_SetCursor(2, 0);
                 LCD_PrintUID(uid);
-
+                /* Gui uid qua PC */
+                UART1_SendUID(uid);
                 LCD_SetCursor(3, 0);
-                LCD_Print("Sent to PC");
+                LCD_Print("Send and waiting...");
+
+                if(StringCompare(pcResponse, "Known:")) {
+                    LCD_Clear();
+                    LCD_SetCursor(0, 0);
+                    LCD_Print("Da Dang Ky");
+
+                    LCD_SetCursor(1, 0);
+                    /* Vi du PC gui ve 'known:Thanh Tung' thi se bo 'known:' va in ra man hinh la Thanh Tung */
+                    LCD_Print(pcResponse + 6); 
+                } else if(StringCompare(pcResponse, "Unknown")) {
+                    LCD_Clear();
+                    LCD_SetCursor(0, 0);
+                    LCD_Print("Chua Dang Ky");
+
+                    LCD_SetCursor(1, 0);
+                    LCD_Print("Vui long dang ky");
+                    LCD_SetCursor(2, 0);
+                    LCD_Print("Tren PC");
+                } else {
+                    LCD_Clear();
+                    LCD_SetCursor(0, 0);
+                    LCD_Print("Mat ket noi PC");
+                }
 
                 delay_ms(1500);
 
