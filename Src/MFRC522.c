@@ -16,7 +16,6 @@ void SPI1_Init(void) {
     SPI1_CR1 |= SPI_CR1_MSTR;
     SPI1_CR1 |= SPI_CR1_BR; /* Baud rate, RC522 chiu dc 10MHz */
     SPI1_CR1 |= SPI_CR1_SSM | SPI_CR1_SSI;
-
     SPI1_CR1 |= SPI_CR1_SPE;
 
     GPIOA_BSRR = (1 << 4); /* Chan SS len 1 (chua chon) */
@@ -43,15 +42,10 @@ void MFRC522_Write(uint8_t addr, uint8_t val) {
 
 uint8_t MFRC522_Read(uint8_t addr) {
     uint8_t val;
-
     GPIOA_BSRR = (1 << 20); /* SS xuong thap */
-
     SPI1_Transfer(((addr << 1) & 0x7E) | 0x80); /* Ox7E la de dam bao LSB luon = 0, sau do se setting cho MSB sau */
-
     val = SPI1_Transfer(0x00); /* gui bit gia de day du lieu ve stm32 */
-
     GPIOA_BSRR = (1 << 4);
-
     return val;
 }
 
@@ -62,9 +56,7 @@ uint8_t MFRC522_ToCard(uint8_t cmd, uint8_t *sendData, uint8_t sendLen, uint8_t 
 
     MFRC522_Write(0x02, irqEn | 0x80); /* 0x02 la thanh ghi ComlEnReg */
     MFRC522_Write(0x01, 0x00);         /* dua ve trang thai ranh */
-
     MFRC522_Write(0x04, 0x7F);         /* clear tat ca co interrupt cu trong CommIrqReg */
-
     MFRC522_Write(0x0A, 0x80);         /* FIFOLEvelReg: Flush FIFO(xoa buffer) */
 
     for(int i = 0; i < sendLen; i++) {

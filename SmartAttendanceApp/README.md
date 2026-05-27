@@ -43,7 +43,7 @@ python app.py
 1. Cắm module USB-to-TTL đã kết nối với STM32 vào máy tính.
 2. Mở ứng dụng, bấm nút **Refresh** trong mục **Connection Setup**.
 3. Chọn đúng **COM Port** của USB-to-TTL trong danh sách.
-4. Chọn **Baudrate** (mặc định với code của bạn là `9600`).
+4. Chọn **Baudrate** (mặc định với code là `9600`).
 5. Bấm **Connect**. Nếu hiện chữ `Connected` màu xanh là thành công.
 
 ### Luồng nhận dữ liệu
