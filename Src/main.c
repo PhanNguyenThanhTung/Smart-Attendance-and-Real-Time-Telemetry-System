@@ -13,7 +13,7 @@ uint8_t StringCompare(char *str, char *prefix);
 int main(void) {
     uint8_t tagType[2];
     uint8_t uid[5]; /* Mang chua UID */
-    char pcResponse[64]; /* Mang chua phan hoi tu PC */
+    char PCresponse[64]; /* Mang chua phan hoi tu PC */
     /* Khoi tao Clock cho he thong */
     SystemClock_Config_36MHz();
 
@@ -53,24 +53,25 @@ int main(void) {
                 UART1_SendUID(uid);
                 LCD_SetCursor(3, 0);
                 LCD_Print("Send and waiting...");
-
-                if(StringCompare(pcResponse, "Known:")) {
+                /* Khi info the dung nhu */
+                if(StringCompare(PCresponse, "Known:")) {
                     LCD_Clear();
-                    LCD_SetCursor(0, 0);
-                    LCD_Print("Da Dang Ky");
+                    LCD_SetCursor(1, 1);
+                    LCD_Print("Found!, Card registered");
 
-                    LCD_SetCursor(1, 0);
-                    /* Vi du PC gui ve 'known:Thanh Tung' thi se bo 'known:' va in ra man hinh la Thanh Tung */
-                    LCD_Print(pcResponse + 6); 
-                } else if(StringCompare(pcResponse, "Unknown")) {
-                    LCD_Clear();
-                    LCD_SetCursor(0, 0);
-                    LCD_Print("Chua Dang Ky");
-
-                    LCD_SetCursor(1, 0);
-                    LCD_Print("Vui long dang ky");
                     LCD_SetCursor(2, 0);
-                    LCD_Print("Tren PC");
+                    /* Vi du PC gui ve 'known:Thanh Tung' thi se bo 'known:' va in ra man hinh la Thanh Tung */
+                    LCD_Print(PCresponse + 6); 
+
+                } else if(StringCompare(PCresponse, "Unknown")) {
+                    LCD_Clear();
+                    LCD_SetCursor(0, 2);
+                    LCD_Print("Not yet registered");
+
+                    LCD_SetCursor(1, 0);
+                    LCD_Print("Please register");
+                    LCD_SetCursor(2, 0);
+                    LCD_Print("On server");
                 } else {
                     LCD_Clear();
                     LCD_SetCursor(0, 0);
@@ -80,10 +81,13 @@ int main(void) {
                 delay_ms(1500);
 
                 LCD_Clear();
-                LCD_SetCursor(0, 0);
+                LCD_SetCursor(0, 2);
                 LCD_Print("Smart Attendance");
-
                 LCD_SetCursor(1, 0);
+                LCD_Print("By Thanh Tung");
+                LCD_SetCursor(2, 0);
+                LCD_Print("Scan the card here");
+                LCD_SetCursor(3, 2);
                 LCD_Print("Waiting card...");
             }
         }
