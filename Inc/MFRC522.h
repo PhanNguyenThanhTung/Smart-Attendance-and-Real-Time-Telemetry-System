@@ -1,6 +1,5 @@
 #ifndef MFRC522_H
 #define MFRC522_H
-
 #include "main.h"
 #include <stdint.h>
 
