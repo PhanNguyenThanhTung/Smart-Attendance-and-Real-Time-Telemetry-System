@@ -17,7 +17,7 @@ SECTIONS {
         . = ALIGN(4);
         *(.text)
         *(.text*)
-        *(.glue_7) /* Mã hỗ trợ khi gọi từ code ARM sang code Thumb */
+        *(.glue_7)  /* Mã hỗ trợ khi gọi từ code ARM sang code Thumb */
         *(.glue_7t) /* Mã hỗ trợ khi gọi từ code Thumb sang code ARM */
         *(.eh_frame)
 
@@ -29,7 +29,7 @@ SECTIONS {
 
     .rodata : {
         . = ALIGN(4);
-        *(.rodata) /* Lấy tất cả các mục .rodata */
+        *(.rodata)  /* Lấy tất cả các mục .rodata */
         *(.rodata*) /* Lấy các mục bắt đầu bằng .rodata */
         . = ALIGN(4);
     } > FLASH
@@ -47,11 +47,11 @@ SECTIONS {
     .data : {
         . = ALIGN(4);
         _sdata = .; /* bắt đầu vùng .data trong RAM */
-        *(.data) /* Lấy các biến toàn cục đã khởi tạo giá trị */
+        *(.data)    /* Lấy các biến toàn cục đã khởi tạo giá trị */
         *(.data*)
         . = ALIGN(4);
-        _edata = .; /* Kết thúc vùng .data trong RAM */
-    } > RAM AT > FLASH /* VMA ở trong RAM nhưng LMA nằm tại FLASH, nên phải load từ FLASH vào RAM */
+        _edata = .;     /* Kết thúc vùng .data trong RAM */
+    } > RAM AT > FLASH  /* VMA ở trong RAM nhưng LMA nằm tại FLASH, nên phải load từ FLASH vào RAM */
 
     .bss : {
         . = ALIGN(4);
