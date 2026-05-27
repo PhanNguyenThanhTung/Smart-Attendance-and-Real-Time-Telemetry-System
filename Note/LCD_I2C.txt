@@ -1,9 +1,0 @@
-Mapping:
-    P0 -> RS
-    P1 -> RW
-    P2 -> EN
-    P3 -> Backlight
-    P4 -> D4
-    P5 -> D5
-    P6 -> D6
-    P7 -> D7
