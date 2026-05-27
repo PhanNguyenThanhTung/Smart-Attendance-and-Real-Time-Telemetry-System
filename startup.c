@@ -87,7 +87,7 @@ uint32_t *isr_vector[] __attribute__((section(".isr_vector"))) = {
     0,
     (uint32_t *)&PendSV_Handler,
     (uint32_t *)&SysTick_Handler,
-    // External Interrupts
+    /* External Interrupts */ 
     (uint32_t *)&WWDG_Handler,
     (uint32_t *)&PVD_Handler,
     (uint32_t *)&TAMPER_Handler,
