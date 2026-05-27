@@ -6,8 +6,8 @@ CP = arm-none-eabi-objcopy
 SZ = arm-none-eabi-size
 
 TARGET = main
-SRCS = main.c MFRC522.c I2C_LCD.c startup.c
-OBJS = main.o MFRC522.o I2C_LCD.o startup.o
+SRCS = main.c MFRC522.c I2C_LCD.c UART.c startup.c
+OBJS = main.o MFRC522.o I2C_LCD.o UART.o startup.o
 LDSCRIPT = stm32f103c8t6.ld
 
 MCU = -mcpu=cortex-m3 -mthumb

@@ -16,7 +16,7 @@ void MFRC522_AntenOff(void);
 void MFRC522_Reset(void);
 void MFRC522_Init(void);
 
-// Ham delay nam ben main.c, MFRC522.c can dung khi reset/init
+/* Ham delay nam ben main.c, MFRC522.c can dung khi reset/init */
 void delay_ms(uint32_t ms);
 
 #endif
