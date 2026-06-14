@@ -78,7 +78,7 @@ uint8_t I2C1_WriteByte(uint8_t addr, uint8_t data) {
         return 0;
     }
 
-    /* Stop */
+    /* stop */
     I2C1_CR1 |= (1 << 9);
 
     return 1;
@@ -133,24 +133,24 @@ void LCD_Init(void) {
     LCD_Write4Bits(0x20);
     delay_ms(10);
 
-    LCD_SendCmd(0x28); /* 4-bit, multi-line, 5x8 font */
+    LCD_SendCmd(0x28); /* 4-bit, nhieu dong, 5x8 font */
     delay_ms(2);
 
-    LCD_SendCmd(0x08); /* Display OFF */
+    LCD_SendCmd(0x08); /* display off */
     delay_ms(2);
 
-    LCD_SendCmd(0x01); /* Clear display */
+    LCD_SendCmd(0x01); /* clear display */
     delay_ms(5);
 
-    LCD_SendCmd(0x06); /* Entry mode */
+    LCD_SendCmd(0x06); /* entry mode */
     delay_ms(2);
 
-    LCD_SendCmd(0x0C); /* Display ON, cursor OFF */
+    LCD_SendCmd(0x0C); /* bat man hinh, tat con tro */
     delay_ms(2);
 }
 
 void LCD_Clear(void) {
-    LCD_SendCmd(0x01); /* Clear man hinh */
+    LCD_SendCmd(0x01); /* clear man hinh */
     delay_ms(5);
 }
 
