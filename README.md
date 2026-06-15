@@ -66,16 +66,10 @@ Trong các phiên bản tiếp theo, dự án sẽ được phát triển thêm 
 | VCC | 3.3V hoặc 5V tùy module |
 | GND | GND |
 
-Địa chỉ I2C thường dùng:
+Địa chỉ module I2C LCD:
 
 ```c
 #define LCD_I2C_ADDR 0x27
-```
-
-Nếu không hoạt động, có thể thử:
-
-```c
-#define LCD_I2C_ADDR 0x3F
 ```
 
 ### 4.3. UART với máy tính
