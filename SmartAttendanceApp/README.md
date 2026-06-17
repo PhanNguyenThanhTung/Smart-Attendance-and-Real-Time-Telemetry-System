@@ -1,85 +1,85 @@
 # Smart Attendance System - Desktop App
 
-Đây là ứng dụng desktop quản lý chấm công bằng RFID kết nối qua cổng UART (với STM32F103C8T6), được viết bằng Python (Tkinter + pyserial).
+This is a desktop application written in Python (using Tkinter and pyserial) for managing RFID attendance, connected via UART to an STM32F103C8T6 microcontroller.
 
-## 1. Cấu trúc dự án
+## 1. Project Structure
 
 ```text
 SmartAttendanceApp/
-├── app.py                  # Chứa toàn bộ mã nguồn ứng dụng (giao diện, logic, UART)
-├── requirements.txt        # Danh sách thư viện cần thiết
-├── README.md               # File hướng dẫn
-└── data/                   # Thư mục chứa dữ liệu
-    ├── cards.csv           # File lưu thông tin thẻ đã đăng ký
-    └── attendance_log.csv  # File lưu lịch sử quẹt thẻ
+├── app.py                  # Main application source code (GUI, logic, UART communication)
+├── requirements.txt        # Python library dependencies
+├── README.md               # Documentation file
+└── data/                   # Data storage directory
+    ├── cards.csv           # Database for registered cards
+    └── attendance_log.csv  # Database for attendance scan history
 ```
 
-*Lưu ý:* Thư mục `data/` và các file CSV sẽ tự động được tạo ra khi bạn chạy ứng dụng lần đầu tiên nếu chúng chưa tồn tại.
+Note: The `data/` directory and CSV files will be generated automatically upon running the application for the first time if they do not exist.
 
-## 2. Cài đặt môi trường
+## 2. Environment Setup
 
-### Cài đặt Python
-Bạn cần cài đặt **Python 3.x** trên máy tính (Nên dùng Python 3.8 trở lên).
-Tải Python tại: [python.org](https://www.python.org/downloads/) (Nhớ tích chọn "Add Python to PATH" khi cài đặt).
+### Install Python
+You need **Python 3.x** installed on your computer (Python 3.8 or newer is recommended).
+Download Python from: [python.org](https://www.python.org/downloads/) (make sure to check the option "Add Python to PATH" during installation).
 
-### Cài đặt thư viện
-Mở Terminal / Command Prompt tại thư mục `SmartAttendanceApp` và chạy lệnh sau để cài đặt thư viện cần thiết:
+### Install Dependencies
+Open Terminal / Command Prompt in the `SmartAttendanceApp` directory and run the following command to install the required libraries:
 ```bash
 pip install -r requirements.txt
 ```
 
-*(Lệnh trên thực chất sẽ cài đặt thư viện `pyserial` để giao tiếp với COM port).*
+(The command installs the `pyserial` library required for serial port communication).
 
-## 3. Cách chạy ứng dụng
+## 3. Running the Application
 
-Chạy lệnh sau tại thư mục `SmartAttendanceApp`:
+Run the following command in the `SmartAttendanceApp` directory:
 ```bash
 python app.py
 ```
 
-## 4. Hướng dẫn sử dụng
+## 4. Usage Instructions
 
-### Kết nối với STM32
-1. Cắm module USB-to-TTL đã kết nối với STM32 vào máy tính.
-2. Mở ứng dụng, bấm nút **Refresh** trong mục **Connection Setup**.
-3. Chọn đúng **COM Port** của USB-to-TTL trong danh sách.
-4. Chọn **Baudrate** (mặc định với code là `9600`).
-5. Bấm **Connect**. Nếu hiện chữ `Connected` màu xanh là thành công.
+### Connecting to STM32
+1. Plug the USB-to-TTL module (connected to STM32) into your computer.
+2. Launch the application, and click **Refresh** in the **Connection Setup** section.
+3. Select the correct **COM Port** associated with the USB-to-TTL converter.
+4. Select the **Baudrate** (default is `9600`).
+5. Click **Connect**. A green indicator displaying `Connected` confirms a successful connection.
 
-### Luồng nhận dữ liệu
-- Khi bạn quẹt thẻ trên MFRC522, STM32 sẽ đọc và gửi chuỗi `Card:<UID>\n` lên máy tính.
-- **Nếu thẻ đã đăng ký:**
-  - Ứng dụng sẽ hiển thị khu vực quét màu xanh, hiện tên người dùng.
-  - Phản hồi về STM32: `Known:<Tên>\n`.
-- **Nếu thẻ chưa đăng ký:**
-  - Ứng dụng sẽ hiển thị khu vực quét màu vàng.
-  - Phản hồi về STM32: `Unknown\n`.
-  - Bạn có thể nhập Họ tên, MSSV, Lớp và bấm **Register This Card**.
-  - Sau khi đăng ký thành công, ứng dụng phản hồi tiếp về STM32: `Added:<Tên>\n`.
+### Communication Flow
+* When an RFID card is swiped over the MFRC522 module, the STM32 sends `Card:<UID>\n` to the computer.
+* **If the card is registered:**
+  * The GUI displays a green scan area showing the user's name.
+  * The app sends a response back to the STM32: `Known:<Name>\n`.
+* **If the card is unregistered:**
+  * The GUI displays a yellow scan area.
+  * The app sends a response back to the STM32: `Unknown\n`.
+  * You can fill in the Name, Student ID, Class, and click **Register This Card**.
+  * Upon successful registration, the app sends a response back to the STM32: `Added:<Name>\n`.
 
-### Test ứng dụng không cần STM32
-Nếu bạn chưa gắn STM32 nhưng muốn test thử ứng dụng:
-1. Dùng 1 cáp USB-to-TTL khác hoặc một phần mềm tạo COM ảo (như com0com, Virtual Serial Port Driver).
-2. Dùng phần mềm Terminal (như Hercules, XCTU, hoặc Serial Monitor của Arduino).
-3. Gõ gửi chuỗi `CARD:50C7E85F\n` hoặc `Card:50C7E85F\n` vào cổng COM.
-4. Xem phản hồi của ứng dụng trên Terminal và giao diện.
+### Testing Without STM32 Hardware
+If you want to test the application without the STM32 hardware:
+1. Use a second USB-to-TTL converter or virtual serial port software (such as com0com or Virtual Serial Port Driver) to create a virtual COM port pair.
+2. Use a serial terminal tool (such as Hercules, XCTU, or Arduino Serial Monitor).
+3. Transmit the string `CARD:50C7E85F\n` or `Card:50C7E85F\n` to the COM port.
+4. Observe the response from the GUI and terminal output.
 
-## 5. Đóng gói ứng dụng thành file .exe (Dành cho Windows)
+## 5. Packaging into an Executable (.exe) for Windows
 
-Để người khác có thể chạy mà không cần cài đặt Python, bạn có thể đóng gói file `app.py` thành `app.exe` bằng thư viện `PyInstaller`.
+You can package the application into a standalone `.exe` using the `PyInstaller` library.
 
-**Bước 1:** Cài đặt PyInstaller
+**Step 1:** Install PyInstaller
 ```bash
 pip install pyinstaller
 ```
 
-**Bước 2:** Build ra file exe
-Tại thư mục `SmartAttendanceApp`, chạy lệnh:
+**Step 2:** Compile to executable
+Run the following command in the `SmartAttendanceApp` directory:
 ```bash
 pyinstaller --onefile --windowed app.py
 ```
-- `--onefile`: Gộp tất cả thành 1 file exe duy nhất.
-- `--windowed` (hoặc `--noconsole`): Ẩn cửa sổ dòng lệnh (console) màu đen ở nền khi chạy app.
+* `--onefile`: Packages the entire application into a single executable file.
+* `--windowed` (or `--noconsole`): Hides the command line console window during execution.
 
-**Bước 3:** Lấy file exe
-Sau khi build xong, bạn vào thư mục `dist/`, lấy file `app.exe` và copy ra thư mục chính `SmartAttendanceApp`. Thư mục `data/` sẽ tự sinh khi bạn chạy file exe.
+**Step 3:** Access the executable
+After completion, navigate to the `dist/` directory, locate `app.exe`, and copy it to the main `SmartAttendanceApp` directory. The `data/` directory will be created automatically next to the executable when run.
