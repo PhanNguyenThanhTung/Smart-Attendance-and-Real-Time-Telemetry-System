@@ -1,104 +1,145 @@
 # Smart Attendance and Real-Time Telemetry System
 
-## 1. Giới thiệu
+A smart attendance system utilizing RFID (13.56 MHz MFRC522) technology, an LCD 2004 (I2C) display, and real-time telemetry communication with a Desktop Application (Python GUI) over UART.
 
-Đây là đồ án **hệ thống chấm công thông minh bằng thẻ RFID** sử dụng vi điều khiển **STM32F103C8T6** lập trình bare-metal. Hệ thống đọc UID từ thẻ RFID, hiển thị trạng thái trên màn hình LCD 2004 I2C, giao tiếp với ứng dụng desktop trên máy tính qua UART để kiểm tra thẻ đã đăng ký hay chưa, đồng thời lưu lịch sử chấm công.
-
-Dự án hiện tại gồm 2 phần chính:
-
-```text
-1. Firmware STM32 bare-metal
-2. Desktop App Python Tkinter + pyserial
-```
-
-Trong các phiên bản tiếp theo, dự án sẽ được phát triển thêm phần **thiết kế PCB** để thay thế breadboard/jumper bằng mạch phần cứng hoàn chỉnh.
+This project is programmed bare-metal on the STM32F103C8T6 microcontroller (without using HAL/SPL libraries).
 
 ---
 
-## 2. Mục tiêu đồ án
+## Quick Start
 
-- Đọc UID thẻ RFID bằng module MFRC522.
-- Hiển thị UID và trạng thái thẻ trên LCD 2004 I2C.
-- Gửi UID từ STM32 lên máy tính qua UART.
-- App máy tính kiểm tra UID trong danh sách đã đăng ký.
-- App phản hồi kết quả về STM32.
-- STM32 hiển thị kết quả lên LCD.
-- App lưu danh sách thẻ và lịch sử quẹt thẻ bằng file CSV.
-- Hướng tới thiết kế PCB riêng cho toàn bộ hệ thống.
-
----
-
-## 3. Phần cứng sử dụng
-
-| Linh kiện | Chức năng |
-|---|---|
-| STM32F103C8T6 | Vi điều khiển trung tâm |
-| MFRC522 RFID | Đọc thẻ RFID 13.56 MHz |
-| LCD 2004 I2C PCF8574 | Hiển thị trạng thái |
-| USB-TTL | Giao tiếp UART với máy tính |
-| Thẻ MIFARE/13.56 MHz | Thẻ chấm công |
-| Nguồn 3.3V/5V | Cấp nguồn hệ thống |
+### 1. Prerequisites
+* **Firmware:**
+  * **Compiler:** GNU Arm Embedded Toolchain (make sure `arm-none-eabi-gcc` is in your system PATH).
+  * **Build Tool:** GNU Make.
+  * **Debugger/Programmer:** ST-Link V2.
+  * **Flashing Tool:** OpenOCD or STM32CubeProgrammer.
+* **Desktop App:**
+  * **Python 3.8+**
 
 ---
 
-## 4. Kết nối phần cứng hiện tại
+### 2. Compiling the STM32 Firmware
 
-### 4.1. MFRC522 với STM32 qua SPI1
+Open a terminal in the root directory of the project (where the Makefile is located) and run:
 
-| MFRC522 | STM32F103 |
-|---|---|
-| SDA/SS | PA4 |
-| SCK | PA5 |
-| MOSI | PA7 |
-| MISO | PA6 |
-| RST | PA0 |
-| 3.3V | 3.3V |
-| GND | GND |
-
-> Lưu ý: MFRC522 dùng mức logic 3.3V, không cấp 5V trực tiếp cho module.
-
-### 4.2. LCD 2004 I2C với STM32
-
-| LCD I2C | STM32F103 |
-|---|---|
-| SCL | PB6 |
-| SDA | PB7 |
-| VCC | 3.3V hoặc 5V tùy module |
-| GND | GND |
-
-Địa chỉ I2C thường dùng:
-
-```c
-#define LCD_I2C_ADDR 0x27
+```bash
+make clean
+make
 ```
 
-Nếu không hoạt động, có thể thử:
-
-```c
-#define LCD_I2C_ADDR 0x3F
-```
-
-### 4.3. UART với máy tính
-
-| USB-TTL | STM32F103 |
-|---|---|
-| RX | PA9 / USART1_TX |
-| TX | PA10 / USART1_RX |
-| GND | GND |
-
-Cấu hình UART:
-
-```text
-Baudrate: 9600
-Data bits: 8
-Parity: None
-Stop bits: 1
-Flow control: None
-```
+Upon successful compilation, the following files will be generated in the root directory:
+* `main.bin` - The binary file to flash onto the microcontroller.
+* `main.elf` - The ELF executable file containing debug symbols.
+* `main.map` - The linker map file showing memory allocation.
 
 ---
 
-## 5. Kiến trúc hệ thống
+### 3. Flashing the Firmware
+
+Connect the ST-Link V2 debugger to the SWD interface of the STM32F103C8T6 (SWDIO, SWCLK, GND, 3.3V).
+
+#### Method 1: Using OpenOCD (Command Line)
+```bash
+openocd -f interface/stlink.cfg -f target/stm32f1x.cfg -c "program main.elf verify reset exit"
+```
+
+#### Method 2: Using STM32CubeProgrammer (GUI)
+1. Open STM32CubeProgrammer.
+2. Select **ST-LINK** as the connection interface and click **Connect**.
+3. Click **Open file** and select `main.bin`.
+4. Set the start address to `0x08000000` and click **Start Programming**.
+
+---
+
+### 4. Running the Desktop Application
+
+1. Navigate to the application directory:
+   ```bash
+   cd SmartAttendanceApp
+   ```
+2. Create a Python virtual environment:
+   ```bash
+   python -m venv .venv
+   ```
+3. Activate the virtual environment:
+   * **Windows (PowerShell):**
+     ```powershell
+     .\.venv\Scripts\Activate.ps1
+     ```
+   * **Linux / macOS:**
+     ```bash
+     source .venv/bin/activate
+     ```
+4. Install the required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+5. Run the application:
+   ```bash
+   python app.py
+   ```
+
+---
+
+## Project Objectives
+
+* Read RFID tag UIDs using the MFRC522 module.
+* Display the UID and card status on the LCD 2004 I2C.
+* Transmit the UID from the STM32 to the PC via UART.
+* PC application checks the UID against a registered user list.
+* PC application transmits the authentication result back to the STM32.
+* STM32 displays the authentication result on the LCD.
+* PC application logs attendance history to a CSV file.
+* Transition from breadboard prototyping to a custom PCB design.
+
+---
+
+## Hardware Connection
+
+Caution: The MFRC522 module operates on 3.3V logic. Do not connect it to a 5V power supply.
+
+### 1. MFRC522 RFID to STM32 (SPI1)
+
+| MFRC522 Pin | STM32F103 Pin | Function |
+|:---:|:---:|---|
+| SDA / SS | PA4 | Chip Select (Software Controlled GPIO) |
+| SCK | PA5 | SPI1 Serial Clock |
+| MISO | PA6 | SPI1 Master In Slave Out |
+| MOSI | PA7 | SPI1 Master Out Slave In |
+| RST | PA0 | Reset (GPIO) |
+| 3.3V | 3.3V | Power Supply (3.3V) |
+| GND | GND | Ground |
+
+### 2. LCD 2004 I2C to STM32
+
+| LCD I2C Pin | STM32F103 Pin | Function |
+|:---:|:---:|---|
+| SCL | PB6 | I2C1 Clock |
+| SDA | PB7 | I2C1 Data |
+| VCC | 5V / 3.3V | Power Supply (depending on module version) |
+| GND | GND | Ground |
+
+* Default I2C Address: `0x27` (or `0x3F` depending on the PCF8574 chip configuration).
+
+### 3. UART to USB-TTL (PC Connection)
+
+| USB-TTL Pin | STM32F103 Pin | Function |
+|:---:|:---:|---|
+| RX | PA9 | STM32 USART1 TX |
+| TX | PA10 | STM32 USART1 RX |
+| GND | GND | Ground |
+
+* **UART Configuration:**
+  * Baudrate: `9600`
+  * Data bits: `8`
+  * Parity: `None`
+  * Stop bits: `1`
+  * Flow control: `None`
+
+---
+
+## System Architecture
 
 ```text
 +-------------+        SPI        +----------+
@@ -114,387 +155,169 @@ Flow control: None
 +-------------+                   +----------------+
 ```
 
-Luồng hoạt động:
+### Data Flow
 
 ```text
-Quẹt thẻ RFID
-↓
-MFRC522 đọc UID
-↓
-STM32 nhận UID
-↓
-STM32 hiển thị UID lên LCD
-↓
-STM32 gửi UID lên PC qua UART
-↓
-App PC kiểm tra UID trong cards.csv
-↓
-App phản hồi Known / Unknown / Added
-↓
-STM32 hiển thị kết quả lên LCD
+RFID Card Scan
+      │
+      ▼
+MFRC522 reads UID
+      │
+      ▼
+STM32 receives UID
+      │
+      ▼
+STM32 displays UID on LCD
+      │
+      ▼
+STM32 transmits UID to PC via UART (CARD:<UID>\r\n)
+      │
+      ▼
+PC App checks UID in cards.csv
+      │
+      ├───────────────────────────────┐
+      ▼ (Registered)                  ▼ (Unregistered)
+PC responds: Known:<Name>\n     PC responds: Unknown\n
+      │                               │
+      │                               ▼
+      │                         PC registers card
+      │                               │
+      │                               ▼
+      │                         PC responds: Added:<Name>\n
+      │                               │
+      └──────────────┬────────────────┘
+                     ▼
+      STM32 displays result on LCD
 ```
 
 ---
 
-## 6. Cấu trúc firmware STM32
+## UART Protocol
 
-Cấu trúc thư mục đề xuất:
-
-```text
-Smart_Attendance/
-├── Inc/
-│   ├── main.h
-│   ├── MFRC522.h
-│   ├── I2C_LCD.h
-│   └── UART.h
-├── Src/
-│   ├── main.c
-│   ├── MFRC522.c
-│   ├── I2C_LCD.c
-│   └── UART.c
-├── startup.c
-├── stm32f103c8t6.ld
-└── Makefile
-```
-
-### 6.1. Các module chính
-
-| File | Chức năng |
-|---|---|
-| `main.c` | Khởi tạo hệ thống, xử lý luồng chính |
-| `MFRC522.c/.h` | Giao tiếp RFID qua SPI |
-| `I2C_LCD.c/.h` | Điều khiển LCD 2004 I2C |
-| `UART.c/.h` | Gửi/nhận dữ liệu với máy tính |
-| `main.h` | Định nghĩa thanh ghi và địa chỉ ngoại vi |
-| `startup.c` | Vector table và reset handler |
-| `stm32f103c8t6.ld` | Linker script |
-
----
-
-## 7. Giao thức UART giữa STM32 và app PC
-
-### 7.1. STM32 gửi lên PC
-
-Khi đọc được thẻ, STM32 gửi:
-
+### 1. STM32 to PC (Card Detected)
+When an RFID card is read, the STM32 transmits:
 ```text
 CARD:<UID>\r\n
 ```
+*Example:* `CARD:50C7E85F\r\n`
 
-Ví dụ:
-
-```text
-CARD:50C7E85F
-```
-
-Trong đó UID là 4 byte UID chính của thẻ, không bao gồm byte BCC.
-
-### 7.2. PC phản hồi về STM32
-
-Nếu thẻ đã đăng ký:
-
-```text
-Known:<Tên người dùng>\n
-```
-
-Ví dụ:
-
-```text
-Known:Thanh Tung
-```
-
-Nếu thẻ chưa đăng ký:
-
-```text
-Unknown\n
-```
-
-Nếu app vừa đăng ký thẻ mới:
-
-```text
-Added:<Tên người dùng>\n
-```
-
-Nếu có lỗi:
-
-```text
-Error\n
-```
-
-> Hai bên cần thống nhất chữ hoa/thường. App hiện tại xử lý dữ liệu nhận từ STM32 bằng cách chuyển sang chữ hoa khi kiểm tra `CARD:`, nhưng phản hồi về STM32 đang dùng dạng `Known:`, `Unknown`, `Added:`.
+### 2. PC to STM32 (Response)
+* **Registered card:**
+  ```text
+  Known:<Username>\n
+  ```
+  *Example:* `Known:Thanh Tung\n`
+* **Unregistered card:**
+  ```text
+  Unknown\n
+  ```
+* **Newly registered card (after Admin registers via UI):**
+  ```text
+  Added:<Username>\n
+  ```
+  *Example:* `Added:Thanh Tung\n`
+* **Error occurred:**
+  ```text
+  Error\n
+  ```
 
 ---
 
-## 8. Desktop App
-
-Desktop app được viết bằng:
+## Project Directory Structure
 
 ```text
-Python 3
-Tkinter
-pyserial
-csv
-```
-
-Cấu trúc app:
-
-```text
-SmartAttendanceApp/
-├── app.py
-├── requirements.txt
-├── README.md
-└── data/
-    ├── cards.csv
-    └── attendance_log.csv
-```
-
-### 8.1. Chức năng app
-
-- Chọn COM port.
-- Chọn baudrate.
-- Connect/Disconnect UART.
-- Nhận UID từ STM32.
-- Kiểm tra UID trong `cards.csv`.
-- Hiển thị thông tin người đã đăng ký.
-- Đăng ký thẻ mới nếu UID chưa tồn tại.
-- Ghi lịch sử quẹt thẻ vào `attendance_log.csv`.
-- Gửi phản hồi về STM32.
-
-### 8.2. File `cards.csv`
-
-Cấu trúc:
-
-```csv
-uid,name,student_id,class_name,registered_at,note
-50C7E85F,Thanh Tung,SV001,Embedded,2026-05-27 14:30:00,
-```
-
-### 8.3. File `attendance_log.csv`
-
-Cấu trúc:
-
-```csv
-uid,name,student_id,class_name,time,status
-50C7E85F,Thanh Tung,SV001,Embedded,2026-05-27 14:35:10,Registered
-A1B2C3D4,,,,2026-05-27 14:40:00,Unknown
+Smart_Attendance/
+├── Inc/                    # Header files (.h)
+│   ├── main.h              # Register definitions & configurations
+│   ├── MFRC522.h           # RFID module library header
+│   ├── I2C_LCD.h           # I2C LCD library header
+│   └── UART.h              # UART library header
+├── Src/                    # Source files (.c)
+│   ├── main.c              # Application entry point & main loop
+│   ├── MFRC522.c           # SPI communication & MFRC522 driver
+│   ├── I2C_LCD.c           # LCD control over I2C driver
+│   └── UART.c              # UART driver (polling method)
+├── startup.c               # MCU vector table & reset handler
+├── stm32f103c8t6.ld        # Linker script defining RAM/Flash layout
+├── Makefile                # Build configuration script
+├── SmartAttendanceApp/     # Python desktop application directory
+│   ├── app.py              # Application main entry point (GUI)
+│   ├── requirements.txt    # Python library dependencies
+│   └── README.md           # Application documentation
+└── README.md               # Main project documentation
 ```
 
 ---
 
-## 9. Cách build firmware STM32
+## Desktop Application Details
 
-Yêu cầu:
+The desktop application is built with **Python 3** using **Tkinter** for the GUI and **pyserial** for serial communication.
 
-```text
-arm-none-eabi-gcc
-make
-OpenOCD
-ST-Link
-```
+### 1. Features
+* Scans and displays available COM ports.
+* Establishes/closes connection to the STM32 via GUI controls.
+* Reads and writes local database CSV files:
+  * `cards.csv`: Stores registered users (UID, Name, Student ID, Class, Registration Timestamp).
+  * `attendance_log.csv`: Logs attendance events (UID, Name, Student ID, Class, Timestamp, Status).
+* Allows direct registration of unrecognized cards on scan detection.
 
-Build:
-
-```bash
-make clean
-make
-```
-
-Nếu build thành công sẽ tạo:
-
-```text
-main.elf
-main.bin
-main.map
-```
-
-Nạp/debug bằng VS Code + Cortex-Debug hoặc OpenOCD.
+### 2. CSV File Formats
+* **cards.csv:**
+  ```csv
+  uid,name,student_id,class_name,registered_at,note
+  50C7E85F,Thanh Tung,SV001,Embedded,2026-05-27 14:30:00,
+  ```
+* **attendance_log.csv:**
+  ```csv
+  uid,name,student_id,class_name,time,status
+  50C7E85F,Thanh Tung,SV001,Embedded,2026-05-27 14:35:10,Registered
+  ```
 
 ---
 
-## 10. Cách chạy desktop app
+## Current Status and Roadmap
 
-Vào thư mục app:
+### Completed Features
+* Configured system clock (HSE 8 MHz scaled to 36 MHz System Clock).
+* Implemented SPI1 driver for MFRC522 communication (successful UID read).
+* Implemented I2C1 driver for LCD 2004 via PCF8574 decoder.
+* Implemented UART1 driver for real-time serial transmission.
+* Built real-time Python desktop GUI.
 
-```bash
-cd SmartAttendanceApp
-```
-
-Tạo môi trường ảo nếu cần:
-
-```bash
-python -m venv .venv
-```
-
-Windows PowerShell:
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
-
-Linux:
-
-```bash
-source .venv/bin/activate
-```
-
-Cài thư viện:
-
-```bash
-pip install -r requirements.txt
-```
-
-Chạy app:
-
-```bash
-python app.py
-```
-
-Nếu không dùng môi trường ảo trên Ubuntu:
-
-```bash
-sudo apt install python3-tk python3-serial
-python3 app.py
-```
+### Upcoming Features
+* Integrate a buzzer for audio feedback on successful/failed authentication.
+* Integrate RTC (Real-Time Clock) for standalone logging (offline mode).
+* Utilize STM32 flash memory or external EEPROM to cache offline logs.
+* Design custom PCB and 3D-printable enclosure.
 
 ---
 
-## 11. Trạng thái hiện tại của đồ án
+## PCB Design Guidelines
 
-Các phần đã hoàn thành:
+A custom PCB carrier board is planned to replace breadboard connections.
 
-- Cấu hình clock STM32 bare-metal 36 MHz.
-- Giao tiếp SPI với MFRC522.
-- Đọc UID thẻ RFID.
-- Giao tiếp I2C với LCD 2004 PCF8574.
-- Hiển thị ký tự và UID lên LCD.
-- Giao tiếp UART với máy tính.
-- Gửi UID từ STM32 lên app PC.
-- App PC nhận UID, kiểm tra thẻ và lưu CSV.
-- App PC gửi phản hồi về STM32.
+### 1. Block Diagram
+```text
+  [ 5V/USB Input ] ───► [ 3.3V LDO Regulator ] 
+                               │
+  [ SWD ST-Link ]  ◄───────────┼───────────► [ STM32F103C8T6 MCU ]
+                               │                    │
+  [ USB-TTL Port ] ◄───────────┼───────────► (SPI) ─► [ MFRC522 Module ]
+                               │                    │
+  [ Buzzer & LED ] ◄───────────┘                    └► (I2C) ─► [ LCD 2004 I2C ]
+```
 
-Các phần đang/ sẽ phát triển:
-
-- Hoàn thiện xử lý `Added:` sau khi đăng ký thẻ mới.
-- Thêm timeout cho hàm nhận UART để tránh STM32 chờ vô hạn.
-- Thiết kế PCB cho dự án.
-- Làm vỏ hộp hoàn chỉnh.
-- Tối ưu giao diện app và dữ liệu chấm công.
+### 2. Implementation Checklist
+* **Power Supply:** Use an AMS1117-3.3 LDO regulator to provide 3.3V.
+* **Decoupling:** Place a 100nF capacitor near every VDD pin of the STM32.
+* **Routing:** Keep SPI trace lengths short and route them away from electromagnetic noise sources.
+* **Debug Header:** Expose the SWD interface (`SWDIO`, `SWCLK`, `GND`, `3V3`, `NRST`) for convenient flashing and debugging.
 
 ---
 
-## 12. Dự định thiết kế PCB
+## Git Guidelines
 
-Mục tiêu PCB là tích hợp các kết nối chính của hệ thống vào một board gọn, ổn định và dễ lắp đặt hơn so với breadboard.
-
-### 12.1. Khối chức năng trên PCB
-
-PCB dự kiến gồm các khối:
-
-```text
-1. Khối vi điều khiển STM32F103C8T6
-2. Khối RFID MFRC522
-3. Khối LCD 2004 I2C
-4. Khối UART/USB-TTL
-5. Khối nguồn 3.3V và 5V
-6. Khối debug/nạp ST-Link
-7. Header mở rộng nếu cần
-```
-
-### 12.2. Các connector nên có
-
-| Connector | Chức năng |
-|---|---|
-| Header MFRC522 | Kết nối module RFID |
-| Header LCD I2C | Kết nối LCD 2004 I2C |
-| Header UART | Kết nối USB-TTL |
-| Header SWD | Nạp/debug STM32 bằng ST-Link |
-| Header nguồn | Cấp nguồn ngoài |
-| Header mở rộng | Dành cho nâng cấp sau |
-
-### 12.3. Header SWD nên đưa ra PCB
-
-Nên có tối thiểu:
-
-```text
-SWDIO
-SWCLK
-3.3V
-GND
-NRST
-```
-
-### 12.4. Nguồn
-
-Dự kiến PCB cần:
-
-```text
-5V input
-3.3V regulator cho STM32 và MFRC522
-GND chung cho toàn hệ thống
-```
-
-Lưu ý:
-
-- STM32F103 và MFRC522 dùng 3.3V.
-- LCD I2C có thể dùng 5V hoặc 3.3V tùy module.
-- Nếu LCD chạy 5V, cần chú ý pull-up SDA/SCL có thể kéo lên 5V.
-- Nên cân nhắc level shifter I2C nếu dùng LCD 5V.
-
-### 12.5. Layout PCB cần chú ý
-
-- Đặt tụ decoupling 100 nF gần chân nguồn STM32.
-- Đặt tụ bulk 10 uF hoặc 47 uF gần đầu vào nguồn.
-- Đường SPI tới MFRC522 nên ngắn và gọn.
-- Không đặt đường tín hiệu tốc độ cao chạy vòng quanh anten RFID.
-- GND nên đi chắc, ưu tiên ground plane.
-- Header LCD nên bố trí dễ cắm dây.
-- Header UART nên ghi rõ TX/RX/GND trên silkscreen.
-- Header SWD nên đặt ở mép board để dễ cắm ST-Link.
-- Ghi rõ mức điện áp trên PCB: 3V3, 5V, GND.
-
-### 12.6. Checklist trước khi làm PCB
-
-Trước khi vẽ PCB cần chốt:
-
-- Dùng STM32F103C8T6 dạng module Blue Pill hay chip STM32 rời?
-- Dùng MFRC522 dạng module hay tích hợp luôn mạch RFID?
-- LCD dùng 3.3V hay 5V?
-- Có dùng level shifter I2C không?
-- Nguồn cấp chính là USB 5V hay adapter ngoài?
-- Có cần nút reset, LED trạng thái, buzzer không?
-- Kích thước board mong muốn?
-- Dùng 1 lớp, 2 lớp hay 4 lớp?
-
-Khuyến nghị giai đoạn đầu:
-
-```text
-Thiết kế PCB dạng carrier board:
-- STM32 Blue Pill cắm lên board
-- MFRC522 cắm qua header
-- LCD I2C cắm qua header
-- USB-TTL cắm qua header
-```
-
-Cách này dễ sửa lỗi hơn so với việc tích hợp toàn bộ chip rời ngay từ đầu.
-
----
-
-## 13. Hướng phát triển tiếp theo
-
-- Thêm buzzer báo thành công/thất bại.
-- Thêm RTC để STM32 tự lưu thời gian nếu không có PC.
-- Thêm EEPROM/Flash lưu UID tạm thời trên STM32.
-- Thêm chế độ offline.
-- Thêm WiFi/ESP8266 hoặc ESP32 để gửi dữ liệu lên server.
-- Thiết kế PCB version 1.
-- Thiết kế vỏ hộp bằng 3D print hoặc mica.
-- Xuất báo cáo thống kê từ file CSV.
-
----
-
-## 14. Ghi chú Git
-
-Nên thêm `.gitignore` để tránh commit file build và cấu hình máy cá nhân:
+To prevent committing binary build artifacts, include the following in your `.gitignore`:
 
 ```gitignore
 *.o
@@ -508,35 +331,17 @@ dist/
 build/
 ```
 
-Các file nên commit:
+---
 
-```text
-Src/
-Inc/
-Makefile
-startup.c
-stm32f103c8t6.ld
-SmartAttendanceApp/app.py
-SmartAttendanceApp/requirements.txt
-SmartAttendanceApp/README.md
-```
+## Author
 
-Các file không nên commit:
-
-```text
-*.o
-*.elf
-*.bin
-*.map
-.vscode/
-.venv/
-```
+* **Name:** Phan Nguyen Thanh Tung
+* **Project:** *Smart Attendance and Real-Time Telemetry System*
 
 ---
 
-## 15. Tác giả
+## Contact
 
-```text
-Phan Nguyễn Thanh Tùng
-Project: Smart Attendance and Real-Time Telemetry System
-```
+* **GitHub:** [Thanh Tung](https://github.com/PhanNguyenThanhTung)
+* **LinkedIn:** [Phan Nguyen Thanh Tung](https://www.linkedin.com/in/phan-nguyen-thanh-tung)
+* **Email:** [tungp5656@gmail.com](mailto:tungp5656@gmail.com)
