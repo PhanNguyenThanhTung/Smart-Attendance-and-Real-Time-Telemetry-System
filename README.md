@@ -1,4 +1,4 @@
-# Smart Attendance and Real-Time Telemetry System
+# Smart Attendance System
 
 A smart attendance system utilizing RFID (13.56 MHz MFRC522) technology, an LCD 2004 (I2C) display, and real-time telemetry communication with a Desktop Application (Python GUI) over UART.
 
